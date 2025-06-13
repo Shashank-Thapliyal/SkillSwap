@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
           }
         },
       },
-          gender: {
+      gender: {
       type: String,
       set: (val) => val.toLowerCase(),
       enum: ["male", "female", "others"],

@@ -14,7 +14,7 @@ export const findByID =  ( id ) =>{
 
 
 export const findByUserName =  ( userName ) =>{
-    return  User.findOne({userName});
+    return User.findOne({ 'profile.userName': userName });
 }
 
 

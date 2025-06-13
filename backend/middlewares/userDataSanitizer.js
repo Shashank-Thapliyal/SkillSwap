@@ -2,8 +2,6 @@ export const sanitizeData = (user) => {
   return {
     _id: user._id,
     email: user.email,
-    dob: user.dob,
-    gender: user.gender,
     skills: user.skills,
     profile: {
       firstName: user.profile.firstName,
@@ -12,7 +10,9 @@ export const sanitizeData = (user) => {
       userName: user.profile.userName,
       profilePic: user.profile.profilePic,
       about: user.profile.about,
-      location: user.profile.location
-    }
+      location: user.profile.location,
+      dob: user.profile.dob,
+      gender: user.profile.gender,
+    },
   };
 };

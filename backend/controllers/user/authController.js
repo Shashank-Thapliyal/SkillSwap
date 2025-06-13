@@ -11,6 +11,7 @@ export const signupUser = async (req, res) => {
     validateData(req);
     const {
       firstName,
+      middleName,
       lastName,
       userName,
       email,
@@ -29,6 +30,7 @@ export const signupUser = async (req, res) => {
       return res.status(409).json({ message: "UserName already taken" });
     }
 
+    console.log(req.body)
     const hashedPassword = await encryptPassword(password);
 
     const newUser = new User({
@@ -44,7 +46,7 @@ export const signupUser = async (req, res) => {
       password: hashedPassword,
     });
 
-
+    console.log(newUser);
     await newUser.save();
 
     return res.status(201).json({ message: "User created successfully" });
