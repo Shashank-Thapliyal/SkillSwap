@@ -1,33 +1,39 @@
 import mongoose from "mongoose";
+import validator from "validator";
 
-const participantSchema = {
-  user: {
+const sessionSchema = new mongoose.Schema({
+  // Directly reference teacher and learner
+  teacher: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  role: {
-    type: String,
-    enum: ["teacher", "learner"],
+  learner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
-};
 
-const sessionSchema = new mongoose.Schema({
-  participants: {
-    type: [participantSchema],
-    validate: [val => val.length === 2, "Swap must have exactly two participants"],
-  },
   scheduledAt: {
     type: Date,
     required: true,
   },
+
   status: {
     type: String,
     enum: ["scheduled", "completed", "cancelled"],
     default: "scheduled",
-  }
-},{timestamps : true});
+  },
 
-const session = mongoose.model("Session", sessionSchema);
-export default session;
+  callLink: {
+    type: String,
+    required: true,
+    validate: {
+      validator: (v) => validator.isURL(v),
+      message: "Please provide a valid URL",
+    },
+  },
+}, { timestamps: true });
+
+const Session = mongoose.model("Session", sessionSchema);
+export default Session;
