@@ -29,8 +29,8 @@ const swapProposalSchema = new Schema({
   },
   paymentType: {
     type: String,
-    enum: ["swap", "paid"],
-    default: "swap",
+    enum: ["swap", "paid", "free"],
+    default: "free",
   },
   payment: {
     status: {

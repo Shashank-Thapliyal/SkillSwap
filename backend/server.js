@@ -7,6 +7,7 @@ import connectDb from "./db/database.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import requestRoutes from "./routes/requestRoutes.js";
+import proposalRoutes from "./routes/proposalRoutes.js";
 import cors from "cors";
 
 const app = express();
@@ -28,6 +29,8 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/requests",requestRoutes);
+app.use("/api/proposals", proposalRoutes);
+
 
 connectDb().then(() => {
   app.listen(port, () => {
