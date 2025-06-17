@@ -24,7 +24,7 @@ const sessionSchema = new mongoose.Schema({
     enum: ["scheduled", "completed", "cancelled"],
     default: "scheduled",
   },
-
+  
   callLink: {
     type: String,
     required: true,
