@@ -78,7 +78,7 @@ export const getConversation = async (req, res) => {
 
 export const getMessages = async (req, res) => {
       try {
-    const { otherUser } = req.body;
+    const { otherUser } = req.params;
     if (!otherUser)
       return res.status(400).json({ message: "Invalid Fetch Request" });
 
