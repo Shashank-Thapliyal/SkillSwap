@@ -113,3 +113,38 @@ export const logoutUser = async (req, res) => {
       .json({ message: "Error while loggin out the user", error: err.message });
   }
 };
+
+
+export const getMe = async (req, res) => {
+  try {
+    const userId = req.user.userID
+
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      email: user.email,
+      profile: {
+        firstName: user.profile.firstName,
+        lastName: user.profile.lastName,
+        userName: user.profile.userName,
+        gender: user.profile.gender,
+        profilePic: user.profile.profilePic,
+        about: user.profile.about,
+        location: user.profile.location,
+      },
+      skills: {
+        canTeach: user.skills.canTeach,
+        wantToLearn: user.skills.wantToLearn,
+      },
+      connectionsCount: user.connections.current.length,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error while fetching user data", error: error.message });
+  }
+};
