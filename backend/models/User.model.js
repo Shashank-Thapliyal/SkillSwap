@@ -4,17 +4,9 @@ import validator from "validator";
 const userSchema = new mongoose.Schema(
   {
     profile: {
-      firstName: {
-        type: String,
-        required: true,
-      },
-      middleName: {
-        type: String,
-      },
-      lastName: {
-        type: String,
-        required: true,
-      },
+      firstName: { type: String, required: true },
+      middleName: { type: String },
+      lastName: { type: String, required: true },
       userName: {
         type: String,
         required: true,
@@ -32,16 +24,16 @@ const userSchema = new mongoose.Schema(
         required: true,
         validate(value) {
           if (value > Date.now()) {
-            throw new Error("DOB cannot not be a future date");
+            throw new Error("DOB cannot be a future date");
           }
         },
       },
       gender: {
-      type: String,
-      set: (val) => val.toLowerCase(),
-      enum: ["male", "female", "others"],
-      required: true,
-    },
+        type: String,
+        set: (val) => val.toLowerCase(),
+        enum: ["male", "female", "others"],
+        required: true,
+      },
       profilePic: {
         type: String,
         validate(value) {
@@ -73,25 +65,24 @@ const userSchema = new mongoose.Schema(
       validate(value) {
         if (!validator.isStrongPassword(value)) {
           throw new Error(
-            "Password should be minimum 8 characters long and should contain atleast one uppercase letter, one lowercase letter, one number and one special character"
+            "Password should be minimum 8 characters long and should contain at least one uppercase letter, one lowercase letter, one number, and one special character"
           );
         }
       },
     },
     skills: {
-      canTeach: {
-        type: [String],
-        default: [],
-        validate: [
-          (val) => val.length <= 10,
-          "Cannot add more than 10 teachable skills",
-        ],
-      },
-      wantToLearn: {
-        type: [String],
-        default: [],
-        validate: [(val) => val.length <= 10, "Cannot add more than 10 skills"],
-      },
+      canTeach: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Skill",
+        },
+      ],
+      wantToLearn: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Skill",
+        },
+      ],
     },
     connections: {
       current: [

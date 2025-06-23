@@ -1,5 +1,5 @@
 import express from "express";
-import { editProfile, viewProfile,getAllUsers, getConnections, removeConnection } from "../controllers/user/profileController.js";
+import { editProfile, viewProfile,getAllUsers, getConnections, removeConnection, getAllSkills } from "../controllers/user/profileController.js";
 import { blockProfile, unblockProfile, getBlockedUsers } from "../controllers/user/blockController.js";
 import { changePassword, deleteUser } from "../controllers/user/accountController.js";
 import authorize from "../middlewares/authorize.js"
@@ -15,6 +15,7 @@ router.get("/feed", authorize, getAllUsers);
 router.get("/connections", authorize, getConnections);
 router.delete("/connections/remove/:userID", authorize, removeConnection);
 
+router.get("/skills", authorize, getAllSkills);
 
 router.patch("/",authorize, editProfile);
 router.post("/uploadprofilepic", authorize, upload.single("profilePic"), uploadProfilePic);

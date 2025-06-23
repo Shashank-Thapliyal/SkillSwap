@@ -4,14 +4,19 @@ import {
   findByUserName,
   updateUser,
 } from "../../db/userQueries.js";
+import { sanitizeData } from "../../middlewares/userDataSanitizer.js";
 import User from "../../models/User.model.js";
+import Skill from "../../models/Skill.model.js";
 
 //view profile
 export const viewProfile = async (req, res) => {
   try {
     const userID = req.params.userID;
 
-    const user = await findByID(userID);
+    const user = await findByID(userID)
+      .populate("skills.canTeach")
+      .populate("skills.wantToLearn");
+
     if (!user) {
       return res.status(404).json({ message: "User Not Found!" });
     }
@@ -43,7 +48,7 @@ export const viewProfile = async (req, res) => {
         profilePic: user.profile.profilePic,
         about: user.profile.about,
         gender: user.profile.gender,
-        location: user.profile.location
+        location: user.profile.location,
       },
     };
 
@@ -134,7 +139,43 @@ export const editProfile = async (req, res) => {
       if (profileUpdates.includes(key)) {
         newData[`profile.${key}`] = trimmedValue;
       } else if (["canTeach", "wantToLearn"].includes(key)) {
-        newData[`skills.${key}`] = trimmedValue;
+        const skillNames = Array.isArray(trimmedValue) ? trimmedValue : [];
+        const skillIds = [];
+
+        for (const skillData of skillNames.slice(0, 10)) {
+          let name = "";
+          let category = "others";
+        
+          if (typeof skillData === "string") {
+            name = skillData.trim().toLowerCase();
+          } else if (typeof skillData === "object") {
+            name = (skillData.name || "").trim().toLowerCase();
+            category = (skillData.category || "others").trim().toLowerCase();
+          }
+        
+          if (!name) continue;
+        
+          let skill = await Skill.findOne({ name });
+        
+          if (!skill) {
+            // Create new skill with the provided category
+            skill = await Skill.create({ name, category });
+          } else {
+            // Update existing skill's category if it's different
+            if (skill.category !== category) {
+              skill = await Skill.findByIdAndUpdate(
+                skill._id, 
+                { category }, 
+                { new: true }
+              );
+            }
+          }
+        
+          skillIds.push(skill._id);
+        }
+        
+
+        newData[`skills.${key}`] = skillIds;
       }
     }
 
@@ -144,11 +185,15 @@ export const editProfile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(userID, newData, {
       new: true,
       runValidators: true,
-    });
+    })
+    .populate("skills.canTeach")
+    .populate("skills.wantToLearn");
+    
 
+    const data = sanitizeData(updatedUser);
     return res
       .status(200)
-      .json({ message: "Profile updated successfully", data: updatedUser });
+      .json({ message: "Profile updated successfully", user: data });
   } catch (err) {
     console.error(err);
     return res
@@ -187,6 +232,8 @@ export const getAllUsers = async (req, res) => {
       .select(
         "profile.firstName profile.middleName profile.lastName profile.userName profile.profilePic profile.about dob gender skills"
       )
+      .populate("skills.canTeach")
+      .populate("skills.wantToLearn")
       .skip(skip)
       .limit(limit);
 
@@ -203,6 +250,36 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+
+export const getAllSkills = async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    const search = req.query.search?.toLowerCase().trim() || "";
+
+    const filter = search ? { name: { $regex: search, $options: "i" } } : {};
+
+    const skills = await Skill.find(filter)
+      .sort({ name: 1 }) // optional: alphabetically
+      .skip(skip)
+      .limit(limit);
+
+    if (!skills.length) {
+      return res.status(404).json({ message: "No skills found" });
+    }
+
+    return res.status(200).json({ skills });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Error while fetching skills", error: err.message });
+  }
+};
+
+
 export const getConnections = async (req, res) => {
   try {
     const { userID } = req.user;
@@ -211,6 +288,7 @@ export const getConnections = async (req, res) => {
       path: "connections.current",
       select:
         "profile.firstName profile.middleName profile.lastName profile.userName profile.profilePic profile.about skills",
+      populate: [{ path: "skills.canTeach" }, { path: "skills.wantToLearn" }],
     });
 
     if (!userConnections) {
@@ -250,7 +328,9 @@ export const removeConnection = async (req, res) => {
       targetUser.connections.current.includes(userID);
 
     if (!isConnected) {
-      return res.status(400).json({ message: "You are not connected with this user" });
+      return res
+        .status(400)
+        .json({ message: "You are not connected with this user" });
     }
 
     // 👇 clean Mongoose way

@@ -114,12 +114,14 @@ export const logoutUser = async (req, res) => {
   }
 };
 
-
 export const getMe = async (req, res) => {
   try {
-    const userId = req.user.userID
+    const userId = req.user.userID;
 
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId)
+      .select("-password")
+      .populate("skills.canTeach")
+      .populate("skills.wantToLearn");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -136,6 +138,7 @@ export const getMe = async (req, res) => {
         profilePic: user.profile.profilePic,
         about: user.profile.about,
         location: user.profile.location,
+        dob: user.profile.dob,
       },
       skills: {
         canTeach: user.skills.canTeach,
@@ -145,6 +148,9 @@ export const getMe = async (req, res) => {
       createdAt: user.createdAt,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error while fetching user data", error: error.message });
+    res.status(500).json({
+      message: "Error while fetching user data",
+      error: error.message,
+    });
   }
 };
