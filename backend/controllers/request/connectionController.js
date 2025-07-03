@@ -66,14 +66,13 @@ export const sendConnectionRequest = async (req, res) => {
 
     if (!existingConnectionRequest) {
       const newConnectionReq = new ConnectionRequest({ senderID, receiverID });
-      await newConnectionReq.save();
-
+      
       sender.connections.sent.push(newConnectionReq._id);
       receiver.connections.received.push(newConnectionReq._id);
-
+      await newConnectionReq.save();
       await sender.save();
       await receiver.save();
-
+      
       return res
         .status(201)
         .json({
@@ -84,13 +83,13 @@ export const sendConnectionRequest = async (req, res) => {
       existingConnectionRequest.status === "ignored"
     ) {
       existingConnectionRequest.status = "pending";
-      await existingConnectionRequest.save();
-
-      sender.connections.sent.push(existing._id);
-      receiver.connections.received.push(existing._id);
-
+      
+      sender.connections.sent.push(existingConnectionRequest._id);
+      receiver.connections.received.push(existingConnectionRequest._id);
+      
       await sender.save();
       await receiver.save();
+      await existingConnectionRequest.save();
 
       return res
         .status(200)
@@ -111,7 +110,7 @@ export const respondToConnectionReq = async (req, res) => {
   try {
     const requestID = req.params.requestID;
     const { status } = req.body;
-
+    console.log("requestID", requestID)
     const connectionReq = await ConnectionRequest.findById(requestID);
 
     if (!connectionReq) {
@@ -165,3 +164,40 @@ export const respondToConnectionReq = async (req, res) => {
   }
 };
 
+export const withdrawConnectionRequest = async (req, res) => {
+  try {
+    const senderID = req.user.userID;
+    const requestId = req.params.requestID;
+
+    const request = await ConnectionRequest.findById(requestId).populate({
+      path : "receiverID",
+      select : "profile"
+    });
+    
+    if (!request) {
+      return res.status(404).json({ message: "Request doesn't exist" });
+    }
+
+    const sender = await findByID(senderID);
+    const receiverID = request.receiverID._id;
+    const receiver = await findByID(receiverID);
+  
+
+    sender.connections.sent.pull(request._id);
+    receiver.connections.received.pull(request._id);
+
+    await sender.save();
+    await receiver.save();
+    await ConnectionRequest.findByIdAndDelete(request._id);
+
+    return res.status(200).json({
+      message: `Connection request to ${receiverID} withdrawn successfully`,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error while withdrawing connection request",
+      error: error.message,
+    });
+  }
+};

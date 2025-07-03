@@ -4,7 +4,6 @@ import { createSession } from "../../utils/createSession.js";
 
 export const sendProposal = async (req, res) => {
   try {
-    console.log("req body in send proposa:", req.body);
     const { message, timeSlots, paymentType } = req.body;
     const { receiverId } = req.params;
 
@@ -40,16 +39,6 @@ export const sendProposal = async (req, res) => {
         .status(403)
         .json({ message: "Can't send proposals to Unknown Connections" });
     }
-    const existingProposal = await swapProposal.findOne({
-      sender: senderId,
-      receiver: receiverId,
-    });
-
-    if (existingProposal) {
-      return res
-        .status(409)
-        .json({ message: "Proposal Request Already Exists" });
-    }
 
     const newProposalReq = new swapProposal({
       sender: senderId,
@@ -63,7 +52,7 @@ export const sendProposal = async (req, res) => {
 
     return res
       .status(201)
-      .json({ message: "Swap Proposal sent Successfully." });
+      .json({ message: "Proposal sent Successfully." });
   } catch (error) {
     return res
       .status(500)
@@ -129,14 +118,15 @@ export const cancelProposal = async (req, res) => {
 
     if (!request || request.sender.toString() !== req.user.userID)
       return res.status(404).json({ message: "Request not found" });
-
-    if (request.status !== "pending")
+    
+    console.log(request.status)
+    if (request.status && request.status !== "pending")
       return res.status(400).json({ message: "Can't Cancel This Request" });
 
-    request.status = "declined";
+    request.status = "cancelled";
     await request.save();
 
-    return res.status(200).json({ message: "request declined successfully" });
+    return res.status(200).json({ message: "request cancelled successfully" });
   } catch (error) {
     return res
       .status(500)

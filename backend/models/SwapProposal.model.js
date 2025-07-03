@@ -17,7 +17,7 @@ const swapProposalSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "accepted", "declined"],
+    enum: ["pending", "accepted", "declined",  "cancelled"],
     default: "pending",
   },
   proposedTimeSlots: {

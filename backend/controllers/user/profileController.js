@@ -24,7 +24,6 @@ export const viewProfile = async (req, res) => {
     const loggedInUserID = req.user.userID;
     const loggedInUser = await findByID(loggedInUserID);
 
-    // Check if either has blocked the other
     if (
       loggedInUser.blockedUsers
         .map((id) => id.toString())
@@ -53,11 +52,13 @@ export const viewProfile = async (req, res) => {
     };
 
     return res.status(200).json({ data });
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error while fetching User Data", error: err.message });
+      .json({
+        message: "Error while fetching User Data",
+        error: error.message,
+      });
   }
 };
 
@@ -145,18 +146,18 @@ export const editProfile = async (req, res) => {
         for (const skillData of skillNames.slice(0, 10)) {
           let name = "";
           let category = "others";
-        
+
           if (typeof skillData === "string") {
             name = skillData.trim().toLowerCase();
           } else if (typeof skillData === "object") {
             name = (skillData.name || "").trim().toLowerCase();
             category = (skillData.category || "others").trim().toLowerCase();
           }
-        
+
           if (!name) continue;
-        
+
           let skill = await Skill.findOne({ name });
-        
+
           if (!skill) {
             // Create new skill with the provided category
             skill = await Skill.create({ name, category });
@@ -164,16 +165,15 @@ export const editProfile = async (req, res) => {
             // Update existing skill's category if it's different
             if (skill.category !== category) {
               skill = await Skill.findByIdAndUpdate(
-                skill._id, 
-                { category }, 
+                skill._id,
+                { category },
                 { new: true }
               );
             }
           }
-        
+
           skillIds.push(skill._id);
         }
-        
 
         newData[`skills.${key}`] = skillIds;
       }
@@ -186,9 +186,8 @@ export const editProfile = async (req, res) => {
       new: true,
       runValidators: true,
     })
-    .populate("skills.canTeach")
-    .populate("skills.wantToLearn");
-    
+      .populate("skills.canTeach")
+      .populate("skills.wantToLearn");
 
     const data = sanitizeData(updatedUser);
     return res
@@ -204,26 +203,42 @@ export const editProfile = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    let limit = Math.min(parseInt(req.query.limit) || 10, 50);
+    let limit = Math.min(parseInt(req.query.limit) || 10);
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
 
     const loggedInUser = await User.findById(req.user.userID)
       .select("connections blockedUsers")
-      .populate({
-        path: "connections.sent",
-        select: "receiver", // assuming receiver is a field in ConnectionRequest
-      });
+      .populate([
+        {
+          path: "connections.sent",
+          select: "receiverID",
+        },
+        {
+          path: "connections.received",
+          select: "senderID",
+        },
+      ]);
 
-    const sentReq = loggedInUser.connections.sent.map((req) =>
-      req.receiver?.toString()
+    const sentReq = loggedInUser.connections.sent.map((req) => req.receiverID);
+
+    const receivedReq = loggedInUser.connections.received.map(
+      (req) => req.senderID
     );
+
+    const blockedMe = await User.find({
+      blockedUsers: req.user.userID,
+    }).select("_id");
+
+    const blockedMeIDs = blockedMe.map((user) => user._id.toString());
 
     const excludedUserIDs = [
       ...loggedInUser.connections.current,
       req.user.userID,
       ...loggedInUser.blockedUsers,
       ...sentReq,
+      ...receivedReq,
+      ...blockedMeIDs
     ];
 
     const users = await User.find({
@@ -237,10 +252,6 @@ export const getAllUsers = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    if (!users.length) {
-      return res.status(404).json({ message: "No users found!" });
-    }
-
     res.status(200).json({ users });
   } catch (err) {
     console.error(err);
@@ -249,7 +260,6 @@ export const getAllUsers = async (req, res) => {
       .json({ message: "Error while fetching the users", error: err.message });
   }
 };
-
 
 export const getAllSkills = async (req, res) => {
   try {
@@ -262,7 +272,7 @@ export const getAllSkills = async (req, res) => {
     const filter = search ? { name: { $regex: search, $options: "i" } } : {};
 
     const skills = await Skill.find(filter)
-      .sort({ name: 1 }) // optional: alphabetically
+      .sort({ name: 1 })
       .skip(skip)
       .limit(limit);
 
@@ -270,7 +280,24 @@ export const getAllSkills = async (req, res) => {
       return res.status(404).json({ message: "No skills found" });
     }
 
-    return res.status(200).json({ skills });
+    const skillsWithCounts = await Promise.all(
+      skills.map(async (skill) => {
+        const [teachingCount, learningCount] = await Promise.all([
+          User.countDocuments({ "skills.canTeach": skill._id }),
+          User.countDocuments({ "skills.wantToLearn": skill._id }),
+        ]);
+
+        return {
+          _id: skill._id,
+          name: skill.name,
+          category: skill.category,
+          teachingCount,
+          learningCount,
+        };
+      })
+    );
+
+    return res.status(200).json({ skills: skillsWithCounts });
   } catch (err) {
     console.error(err);
     return res
@@ -278,7 +305,6 @@ export const getAllSkills = async (req, res) => {
       .json({ message: "Error while fetching skills", error: err.message });
   }
 };
-
 
 export const getConnections = async (req, res) => {
   try {
@@ -333,7 +359,6 @@ export const removeConnection = async (req, res) => {
         .json({ message: "You are not connected with this user" });
     }
 
-    // 👇 clean Mongoose way
     user.connections.current.pull(targetUserID);
     targetUser.connections.current.pull(userID);
 

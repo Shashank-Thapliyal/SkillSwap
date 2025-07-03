@@ -6,14 +6,31 @@ export const getSentProposals = async (req, res) => {
       .find({
         sender: req.user.userID,
       })
-      .populate({
+      .populate([{
         path: "receiver",
-        select: "_id profile skills",
-      });
+        select: "profile skills",
+        populate : {
+          path : "skills.canTeach skills.wantToLearn",
+          select : "name category"
+        }
+      }]);
 
     return res
       .status(200)
-      .json({ message: "Requests Fetched Successfully", data: requests });
+      .json({ message: "Requests Fetched Successfully", proposals: {...requests,
+         skills: {
+        canTeach: requests?.receiver?.skills?.canTeach?.map(skill => ({
+          _id : skill._id,
+          name : skill.name,
+          category : skill.category
+        })) || [],
+        wantToLearn: requests?.receiver?.skills?.wantToLearn?.map(skill => ({
+          _id : skill._id,
+          name : skill.name,
+          category : skill.category
+        })) || [],
+      },
+      }});
 
   } catch (error) {
 
@@ -68,3 +85,51 @@ export const getProposalDetails = async (req, res) =>{
         return res.status(500).json({message : "Error while fetching the request data", error : error.message});
     }
 }
+
+
+
+export const getProposalBetween = async (req, res) => {
+  try {
+    const loggedInUserId = req.user.userID;
+    const { otherUserId } = req.params;
+
+    if (!otherUserId) {
+      return res.status(400).json({ message: "Other user ID is required" });
+    }
+
+    const proposals = await swapProposal.find({
+      $or: [
+        { sender: loggedInUserId, receiver: otherUserId },
+        { sender: otherUserId, receiver: loggedInUserId }
+      ]
+    }).populate([
+      {
+        path: "sender",
+        select: "profile skills",
+        populate: {
+          path: "skills.canTeach skills.wantToLearn",
+          select: "name category"
+        }
+      },
+      {
+        path: "receiver",
+        select: "profile skills",
+        populate: {
+          path: "skills.canTeach skills.wantToLearn",
+          select: "name category"
+        }
+      }
+    ]);
+
+    return res.status(200).json({
+      message: "Proposals fetched successfully between both users",
+      proposals
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error while fetching proposals",
+      error: error.message
+    });
+  }
+};

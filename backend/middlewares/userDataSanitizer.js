@@ -1,3 +1,4 @@
+
 export const sanitizeData = (user) => {
   return {
     _id: user._id,
@@ -14,5 +15,6 @@ export const sanitizeData = (user) => {
       dob: user.profile.dob,
       gender: user.profile.gender,
     },
+    connections : user.connections
   };
 };

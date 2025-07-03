@@ -30,7 +30,6 @@ export const signupUser = async (req, res) => {
       return res.status(409).json({ message: "UserName already taken" });
     }
 
-    console.log(req.body)
     const hashedPassword = await encryptPassword(password);
 
     const newUser = new User({
@@ -46,7 +45,6 @@ export const signupUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    console.log(newUser);
     await newUser.save();
 
     return res.status(201).json({ message: "User created successfully" });
@@ -89,7 +87,6 @@ export const loginUser = async (req, res) => {
     res.cookie("token", token);
 
     const data = sanitizeData(existingUser);
-    console.log(data);
     res.status(200).json({ user: data });
   } catch (err) {
     console.error(err);
@@ -119,10 +116,53 @@ export const getMe = async (req, res) => {
     const userId = req.user.userID;
 
     const user = await User.findById(userId)
-      .select("-password")
-      .populate("skills.canTeach")
-      .populate("skills.wantToLearn");
-
+    .select("-password")
+    .populate([
+      {
+        path: "skills.canTeach",
+        select: "name category"
+      },
+      {
+        path: "skills.wantToLearn",
+        select: "name category"
+      },
+      {
+        path: "connections.current",
+        select: "profile skills",
+        populate: [
+          {
+            path: "skills.canTeach skills.wantToLearn",
+            select: "name category"
+          }
+        ]
+      },
+      {
+        path: "connections.sent",
+        populate: {
+          path: "receiverID",
+          select: "profile skills",
+          populate: [
+            {
+              path: "skills.canTeach skills.wantToLearn",
+              select: "name category"
+            }
+          ]
+        }
+      },{
+        path: "connections.received",
+        populate: {
+          path: "senderID",
+          select: "profile skills",
+          populate: [
+            {
+              path: "skills.canTeach skills.wantToLearn",
+              select: "name category"
+            }
+          ]
+        }
+      }
+    ])
+    
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -141,8 +181,68 @@ export const getMe = async (req, res) => {
         dob: user.profile.dob,
       },
       skills: {
-        canTeach: user.skills.canTeach,
-        wantToLearn: user.skills.wantToLearn,
+        canTeach: user?.skills?.canTeach?.map(skill => ({
+          _id : skill._id,
+          name : skill.name,
+          category : skill.category
+        })) || [],
+        wantToLearn: user?.skills?.wantToLearn?.map(skill => ({
+          _id : skill._id,
+          name : skill.name,
+          category : skill.category
+        })) || [],
+      },
+      connections: {
+        current: user.connections.current.map(conn => ({
+          _id: conn._id,
+          profile: conn.profile,
+          skills: {
+            canTeach: conn.skills?.canTeach?.map(skill => ({
+              _id : skill?._id,
+              name : skill?.name,
+              category : skill?.category,
+            })) || [],
+            wantToLearn: conn.skills?.wantToLearn?.map(skill => ({
+              _id : skill?._id,
+              name : skill?.name,
+              category : skill?.category,
+            })) || [],
+          }
+        })),
+        sent: user.connections.sent.map(req => ({
+          _id: req?._id,
+          profile: req?.receiverID?.profile,
+          userId : req?.receiverID?._id,
+          skills: {
+            canTeach: req?.receiverID?.skills?.canTeach?.map(skill => ({
+              _id: skill?._id,
+              name: skill?.name,
+              category: skill?.category,
+            })) || [],
+            wantToLearn: req?.receiverID?.skills?.wantToLearn?.map(skill => ({
+              _id: skill?._id,
+              name: skill?.name,
+              category: skill?.category,
+            })) || [],
+          }
+        })),
+        received: user.connections.received.map(req => ({
+          _id: req?._id,
+          profile: req?.senderID?.profile,
+          userId : req?.senderID?._id,
+          skills: {
+            canTeach: req?.senderID?.skills?.canTeach?.map(skill => ({
+              _id: skill?._id,
+              name: skill?.name,
+              category: skill?.category,
+            })) || [],
+            wantToLearn: req?.senderID?.skills?.wantToLearn?.map(skill => ({
+              _id: skill?._id,
+              name: skill?.name,
+              category: skill?.category,
+            })) || [],
+          }
+        })),
       },
       connectionsCount: user.connections.current.length,
       createdAt: user.createdAt,

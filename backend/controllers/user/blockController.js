@@ -86,12 +86,11 @@ export const unblockProfile = async (req, res) => {
 //get all blocked users
 export const getBlockedUsers = async (req, res) => {
   try {
-    const user = await findByID(req.user.userID);
-
-    await user.populate({
+    const user = await findByID(req.user.userID).populate({
       path: "blockedUsers",
-      select: "_id email profile.firstName profile.lastName profile.userName",
-    });
+      select: "_id email profile.firstName profile.lastName profile.userName profile.profilePic profile.gender profile.location",
+    }).lean();
+
     res.status(200).json({
       blocked: user.blockedUsers,
     });
