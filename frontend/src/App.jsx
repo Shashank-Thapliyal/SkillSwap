@@ -2,8 +2,7 @@ import { RouterProvider } from 'react-router-dom'
 import AppRouter from './Routing/AppRouter.jsx'
 import { ToastContainer, Bounce } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { Provider, useDispatch } from "react-redux"
-import { Appstore } from '../store/store.js';
+import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { setUser } from '../store/userSlice.js';
 import api from './api/api.js';
@@ -12,16 +11,19 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    ( async () => {
+    (async () => {
+      try {
         const loggedInUser = await api.get("/auth/me");
         if (loggedInUser.status === 200)
           dispatch(setUser(loggedInUser.data));
+      } catch (error) {
+        console.log(error)
       }
+    }
     )();
   }, [])
 
-  return ( 
-
+  return (
     <>
       <RouterProvider router={AppRouter} />
       <ToastContainer
@@ -38,7 +40,6 @@ function App() {
         transition={Bounce}
       />
     </>
-
   )
 }
 
