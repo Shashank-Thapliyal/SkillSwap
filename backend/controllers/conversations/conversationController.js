@@ -63,14 +63,14 @@ export const sendMessage = async (req, res) => {
   }
 };
 
-export const getConversation = async (req, res) => {
+export const getConversations = async (req, res) => {
     try {
         const userId = req.user.userID;
         const conversations = await Conversation.find({
             participants : userId
         }).populate("lastMessage participants").sort({updatedAt: -1}).lean();
 
-        return res.status(200).json({message : "Conversations fetched successfully", data : conversations});
+        return res.status(200).json({message : "Conversations fetched successfully", conversations });
     } catch (error) {
         return res.status(500).json({message : "Error while fetching conversations", error : error.message});
     }
