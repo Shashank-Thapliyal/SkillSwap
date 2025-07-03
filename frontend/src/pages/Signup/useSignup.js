@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { signUpUser } from '../../api/authApi.js';
+import { signUpUser } from '../../api/userApi.js';
 import { signupValidation } from '../../utils/validateFormData';
 
 const useSignup = () => {
