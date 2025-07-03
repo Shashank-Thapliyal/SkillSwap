@@ -69,3 +69,30 @@ export const updateProfile = async (data) =>{
     throw error;
   }
 }
+
+export const blockUser = async (userId) => {
+  try {
+    const response = await api.patch(`/user/block/${userId}`);
+    return response;
+  }catch (error) {
+    throw error;
+  }
+}
+
+export const unblockUser = async (userId) => {
+  try {
+    const response = await api.patch(`/user/unblock/${userId}`);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+} 
+
+export const getBlockedUsers = async () =>{
+  try {
+    const response = await api.get("/user/blockedusers");
+    return response;
+  } catch (error) {
+      throw error;
+  }
+}
