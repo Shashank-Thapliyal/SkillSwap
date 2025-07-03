@@ -2,15 +2,16 @@ import { useEffect, useState } from "react";
 import Logo from "../../assets/Logo.png";
 import { Link, useNavigate } from 'react-router-dom'
 import { PrimaryButton } from "../../components/Buttons.jsx";
-import { loginUser } from "../../api/authApi.js";
+import { loginUser } from "../../api/userApi.js";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../../store/userSlice.js";
+import api from "../../api/api.js";
 
 const LogIn = () => {
   const [userDetails, setUserDetails] = useState({
-    email: "sneha@gmail.com",
-    password: "Sneha@123"
+    email: "prashant@gmail.com",
+    password: "Prashant@123"
   });
 
   const [disableSubmit, setDisableSubmit] = useState(true);
@@ -25,13 +26,16 @@ const LogIn = () => {
       const res = await loginUser(userData);
       if (res?.status === 200) {
         toast.success("Logged In Successfully");
-        console.log("login: ", res.data.user);
-        dispatch(setUser(res.data.user))
-        navigate("/profile");
+        (async () => {
+          const loggedInUser = await api.get("/auth/me");
+          if (loggedInUser.status === 200)
+            dispatch(setUser(loggedInUser.data));
+        }
+        )();
+        navigate("/dashboard");
       }
     } catch (error) {
-      console.log(error)
-      toast.error(error.message)
+      toast.error(error.response.data.message)
     }
   }
 
