@@ -1,7 +1,11 @@
 import express from "express";
-import authorize from "../middlewares/authorize";
+import authorize from "../middlewares/authorize.js";
+import {getMessages } from "../controllers/conversations/conversationController.js"
 
 const router = express.Router();
 
-router.get("/messages/:conversationID", authorize, getMessages);
-router.post("/messages/send/:conversationID", authorize, sendMessage );
+//get messages with other user
+router.get("/:otherUser", authorize, getMessages);
+
+
+export default router;

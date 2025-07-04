@@ -51,7 +51,6 @@ export const sendMessage = async (req, res) => {
         sender: req.user.userID,
         conversationId,
         createdAt: new Date(),
-
       });
     }
 
@@ -64,40 +63,63 @@ export const sendMessage = async (req, res) => {
 };
 
 export const getConversations = async (req, res) => {
-    try {
-        const userId = req.user.userID;
-        const conversations = await Conversation.find({
-            participants : userId
-        }).populate("lastMessage participants").sort({updatedAt: -1}).lean();
+  try {
+    const userId = req.user.userID;
+    const conversations = await Conversation.find({
+      participants: userId,
+    })
+      .populate([{path : "lastMessage" },{path : "participants", select : "profile"}])
+      .sort({ updatedAt: -1 })
+      .lean();
 
-        return res.status(200).json({message : "Conversations fetched successfully", conversations });
-    } catch (error) {
-        return res.status(500).json({message : "Error while fetching conversations", error : error.message});
-    }
+    const sanitizedConversations = conversations.map( (conv) =>({
+      ...conv,
+      participants : conv.participants.filter((user)=> user._id.toString() !== userId),
+    }))
+
+    return res
+      .status(200)
+      .json({ message: "Conversations fetched successfully", conversations : sanitizedConversations });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({
+        message: "Error while fetching conversations",
+        error: error.message,
+      });
+  }
 };
 
 export const getMessages = async (req, res) => {
-      try {
+  try {
     const { otherUser } = req.params;
     if (!otherUser)
       return res.status(400).json({ message: "Invalid Fetch Request" });
 
     const messages = await Message.find({
-        $or : [{sender : req.user.userID, receiver: otherUser},
-                {sender: otherUser, receiver : req.user.userID}
-        ]
-    }).lean();
+      $or: [
+        { sender: req.user.userID, receiver: otherUser },
+        { sender: otherUser, receiver: req.user.userID },
+      ],
+    })
+      .populate(
+        "sender",
+        "profile.profilePic profile.firstName profile.lastName"
+      )
+      .populate(
+        "receiver",
+        "profile.profilePic profile.firstName profile.lastName"
+      )
+      .lean();
 
     return res.status(200).json({
       message: "Messages fetched successfully",
       data: messages,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message: "Error while fetching Conversations",
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: "Error while fetching Conversations",
+      error: error.message,
+    });
   }
 };

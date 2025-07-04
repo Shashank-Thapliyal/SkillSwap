@@ -11,6 +11,7 @@ import userRoutes from "./routes/userRoutes.js";
 import requestRoutes from "./routes/requestRoutes.js";
 import proposalRoutes from "./routes/proposalRoutes.js";
 import conversationRoutes from "./routes/conversationRoutes.js";
+import messageRoutes from "./routes/messagesRoutes.js";
 import cors from "cors";
 
 const app = express();
@@ -33,6 +34,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/requests", requestRoutes);
 app.use("/api/proposals", proposalRoutes);
 app.use("/api/conversations",  conversationRoutes);
+app.use("/api/messages",  messageRoutes);
 
 connectDb().then(() => {
   server.listen(process.env.PORT || 5555, () => {
