@@ -2,18 +2,16 @@ import React from 'react'
 import Logo from "../assets/Logo.png";
 import { OutlineButton, PrimaryButton, SecondaryButton } from "../components/Buttons.jsx"
 import Footer from '../components/Footer.jsx';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-[#1E1E2F]">
-      {/* Header */}
       <header className="bg-[#1E1E2F] mt-0 border-b border-[#3C3C55] px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <img src={Logo} alt="SkillSwap Logo" className="h-20 w-auto" />
-
+         <Link to="/" > <img src={Logo} alt="SkillSwap Logo" className="h-20 w-auto" /> p</Link>
           <div className="flex space-x-4">
             <OutlineButton onClick={() => navigate("/login")}>Log In</OutlineButton>
             <PrimaryButton onClick={() => navigate("/signup")}>Sign Up</PrimaryButton>
@@ -51,12 +49,6 @@ const LandingPage = () => {
             <div className="text-center">
               <div className="text-4xl mb-4">🤝</div>
               <h3
-
-                // ============================================================================
-                // SKILLSWAP COMPONENT LIBRARY CONTINUATION
-                // ============================================================================
-
-                // CONTINUING FROM WHERE THE PREVIOUS FILE ENDED...
                 className="text-xl font-semibold text-white mb-2">Skill Exchange</h3>
               <p className="text-[#A0A0B0]">
                 Trade your expertise for new knowledge in a fair, balanced way.
@@ -80,7 +72,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
       <section className="py-16 px-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-white text-center mb-12">
@@ -127,7 +118,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-16 px-6 bg-[#252538]">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
@@ -142,7 +132,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
     <Footer />
     </div>
   )
