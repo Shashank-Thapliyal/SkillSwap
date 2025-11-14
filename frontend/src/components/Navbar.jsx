@@ -1,17 +1,24 @@
 import { useState } from 'react'
 import Logo from "../assets/Logo.png";
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Mail, Bell, Search } from 'lucide-react';
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const currentPage = location.pathname;
   const [notifications, setNotifications] = useState(1);
 
   const loggedInUser = useSelector(state => state.user)
-  // console.log("loggedInUser in Navbar: ", loggedInUser)
   const handleNotificationClick = () => {
+  }
+
+
+  const handleMessageClick = () =>{
+    if(!location.pathname.includes('/conversations'))
+      navigate('/conversations')
   }
 
   const onProfileClick = () => {
@@ -37,13 +44,13 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Link
-            to={"/conversations"}
+          <button
+            onClick={handleMessageClick}
             className="relative p-2 text-[#E0E0E0] hover:text-[#00C3FF] transition-colors"
           >
 
           <Mail />
-          </Link>
+          </button>
           <button
             onClick={handleNotificationClick}
             className="relative p-2 text-[#E0E0E0] hover:text-[#00C3FF] transition-colors"
