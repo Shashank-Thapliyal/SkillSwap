@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { setUser } from '../store/userSlice.js';
 import api from './api/api.js';
+import { connectSocket } from '../store/socketSlice.js';
 
 function App() {
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ function App() {
         const loggedInUser = await api.get("/auth/me");
         if (loggedInUser.status === 200)
           dispatch(setUser(loggedInUser.data));
+          dispatch(connectSocket(loggedInUser.data))
       } catch (error) {
         console.log(error)
       }
