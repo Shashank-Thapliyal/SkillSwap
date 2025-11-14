@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Logo from "../assets/Logo.png";
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Bell, Search } from 'lucide-react';
+import { Mail, Bell, Search } from 'lucide-react';
 
 const Navbar = () => {
   const location = useLocation();
@@ -21,7 +21,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         <div className='flex items-center gap-8'>
-          <Link to={'/'} >
+          <Link to={'/dashboard'} >
             <img src={Logo} alt="SkillSwap Logo" className="h-16 w-auto" />
           </Link>
           {
@@ -37,6 +37,13 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-4">
+          <Link
+            to={"/conversations"}
+            className="relative p-2 text-[#E0E0E0] hover:text-[#00C3FF] transition-colors"
+          >
+
+          <Mail />
+          </Link>
           <button
             onClick={handleNotificationClick}
             className="relative p-2 text-[#E0E0E0] hover:text-[#00C3FF] transition-colors"
