@@ -225,6 +225,11 @@ const SendProposal = () => {
           {proposals.slice(0, 2).map((proposal) => (
             <ProposalCard key={proposal._id} proposal={proposal} onCancel={handleCancelProposal} />
           ))}
+          { proposals.length > 2 &&
+            <div className='ml-2 text-white text-sm rounded-md'>
+              {proposals.length - 2} more...
+              </div>
+          }
         </div>
 
 
