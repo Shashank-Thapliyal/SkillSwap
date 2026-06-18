@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Logo from "../assets/Logo.png";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Mail, Bell, Search } from 'lucide-react';
+import { Mail, Bell, Search, User, Settings, LogOut } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { logout } from '../api/userApi';
 
 const Navbar = () => {
   const location = useLocation();
@@ -12,17 +14,55 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState(1);
 
   const loggedInUser = useSelector(state => state.user)
-  const handleNotificationClick = () => {
-  }
 
+  const handleNotificationClick = () => {}
 
   const handleMessageClick = () =>{
     if(!location.pathname.includes('/conversations'))
       navigate('/conversations')
   }
 
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (!dropdownRef.current) return;
+      if (!dropdownRef.current.contains(e.target) && !triggerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    const keyHandler = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", keyHandler);
+    return () => document.removeEventListener("keydown", keyHandler);
+  }, []);
+
   const onProfileClick = () => {
+    setOpen(prev => !prev);
+  };
+
+  const handleSignOut = async ()=>{
+    try{
+      const ok = await logout();
+      if(ok){
+        setOpen(false);
+        navigate('/login');
+      }else{
+        throw new Error("Sign Out Failed");
+      }
+    }catch(e){
+      toast.error("Something Went Wrong!")
+    }
   }
+  
   return (
     <nav className="bg-[#1E1E2F] border-b border-[#3C3C55] px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -31,8 +71,9 @@ const Navbar = () => {
           <Link to={'/dashboard'} >
             <img src={Logo} alt="SkillSwap Logo" className="h-16 w-auto" />
           </Link>
-          {
-            currentPage === '/dashboard' && <div className="relative left">
+
+          {currentPage === '/dashboard' && (
+            <div className="relative left">
               <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-white" />
               <input
                 type="text"
@@ -40,7 +81,7 @@ const Navbar = () => {
                 className="pl-10 text-white pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent w-64"
               />
             </div>
-          }
+          )}
         </div>
 
         <div className="flex items-center space-x-4">
@@ -48,9 +89,9 @@ const Navbar = () => {
             onClick={handleMessageClick}
             className="relative p-2 text-[#E0E0E0] hover:text-[#00C3FF] transition-colors"
           >
-
-          <Mail />
+            <Mail />
           </button>
+
           <button
             onClick={handleNotificationClick}
             className="relative p-2 text-[#E0E0E0] hover:text-[#00C3FF] transition-colors"
@@ -63,16 +104,62 @@ const Navbar = () => {
             )}
           </button>
 
-          <div className="relative">
-            <button onClick={onProfileClick} className="flex items-center space-x-2">
-              <img src={loggedInUser?.profile?.profilePic} className='h-10 w-10 rounded-full overflow-hidden' alt={loggedInUser?.profile?.userName} />
-              <span className="hidden md:block text-[#E0E0E0]">{loggedInUser?.profile?.userName}</span>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              ref={triggerRef}
+              onClick={onProfileClick}
+              className="flex items-center space-x-2"
+            >
+              <img
+                src={loggedInUser?.profile?.profilePic}
+                className='h-10 w-10 rounded-full overflow-hidden'
+                alt={loggedInUser?.profile?.userName}
+              />
+              <span className="hidden md:block text-[#E0E0E0]">
+                {loggedInUser?.profile?.userName}
+              </span>
             </button>
+
+            <div
+              className={`absolute right-0 mt-2 w-44 bg-[#12121B] rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 transform transition-all z-50
+                ${open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}
+              `}
+            >
+              <div className="py-1">
+                <button
+                  onClick={() => { setOpen(false); navigate('/profile'); }}
+                  className="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-[#1F2A37] transition-colors"
+                >
+                  <User className='text-[#E0E0E0]'/>
+                  <span className="text-sm text-[#E0E0E0]">Profile</span>
+                </button>
+
+                <button
+                  onClick={() => { setOpen(false); navigate('/account'); }}
+                  className="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-[#1F2A37] transition-colors"
+                >
+                <Settings className='text-[#E0E0E0]'/>
+                  <span className="text-sm text-[#E0E0E0]">Account Settings</span>
+                </button>
+
+                <div className="border-t border-[#2A2A3A] my-1" />
+
+                <button
+                  onClick={ handleSignOut }
+                  className="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-[#1F2A37] transition-colors"
+                >
+                 <LogOut className='text-[#E0E0E0]'/>
+                  <span className="text-sm text-[#E0E0E0]">Sign out</span>
+                </button>
+
+              </div>
+            </div>
           </div>
+
         </div>
       </div>
     </nav>
   )
 }
 
-export default Navbar
+export default Navbar;

@@ -15,9 +15,10 @@ function App() {
     (async () => {
       try {
         const loggedInUser = await api.get("/auth/me");
-        if (loggedInUser.status === 200)
+        if (loggedInUser.status === 200) {
           dispatch(setUser(loggedInUser.data));
           dispatch(connectSocket(loggedInUser.data))
+        }
       } catch (error) {
         console.log(error)
       }

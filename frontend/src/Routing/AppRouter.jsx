@@ -11,8 +11,12 @@ import Connections from "../pages/Connections/Connections";
 import SentRequests from "../pages/ConnectionRequests/SentRequests";
 import ReceivedRequests from "../pages/ConnectionRequests/ReceivedRequests";
 import BlockedUsers from "../pages/BlockedUsers/BlockedUsers";
-import SendProposal from "../pages/Proposals/sendProposal";
+import SendProposal from "../pages/Proposals/SendProposal";
 import ChatWrapper from "../pages/Conversation/ChatWrapper";
+import ReceivedProposals from "../pages/Proposals/ReceivedProposals";
+import ProposalsWrapper from "../pages/Proposals/ProposalsWrapper";
+import Sessions from "../pages/Sessions/Sessions";
+import Settings from "../pages/Settings/Settings";
 
 const AppRouter = createBrowserRouter([
     {
@@ -63,11 +67,24 @@ const AppRouter = createBrowserRouter([
                 path : "/send-proposal/:receiverId",
                 element : <SendProposal />
             },{
+                path : "/proposals",
+                element : <ProposalsWrapper />
+            },{
+                path : "/proposals/:tab",
+                element : <ProposalsWrapper />
+            }
+            ,{
                 path : "/conversations",
                 element : <ChatWrapper />
             },{
                 path : "/conversations/:userId/:tab",
                 element : <ChatWrapper />
+            },{
+                path : "/sessions",
+                element : <Sessions />
+            },{
+                path : "/account",
+                element : <Settings />
             }
               
         ]

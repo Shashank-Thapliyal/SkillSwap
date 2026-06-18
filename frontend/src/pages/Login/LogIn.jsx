@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../../store/userSlice.js";
 import api from "../../api/api.js";
+import { connectSocket } from "../../../store/socketSlice.js";
 
 const LogIn = () => {
   const [userDetails, setUserDetails] = useState({
@@ -30,6 +31,7 @@ const LogIn = () => {
           const loggedInUser = await api.get("/auth/me");
           if (loggedInUser.status === 200)
             dispatch(setUser(loggedInUser.data));
+            dispatch(connectSocket(loggedInUser.data));
         }
         )();
         navigate("/dashboard");

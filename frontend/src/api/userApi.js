@@ -96,3 +96,21 @@ export const getBlockedUsers = async () =>{
       throw error;
   }
 }
+
+export const getDashboardData = async () => {
+  try {
+    const response = await api.get("/proposals/dashboard");
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const logout = async () =>{
+  try {
+    const response = await api.post("/auth/logout");
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
