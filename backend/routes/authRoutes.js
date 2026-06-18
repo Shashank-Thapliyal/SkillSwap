@@ -11,6 +11,4 @@ router.post("/login", loginUser );
 router.get("/me", authorize, getMe);
 router.post("/logout", authorize, logoutUser);
 
-
-
 export default router;

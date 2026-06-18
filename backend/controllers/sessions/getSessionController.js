@@ -1,4 +1,5 @@
 import Session from "../../models/Session.model.js";
+import mongoose from "mongoose";
 
 export const getUpcomingSessions = async (req, res) => {
     try {
@@ -43,3 +44,38 @@ export const getSessionDetails = async ( req, res) => {
     }
 }
 
+export const getSessionsWith = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const loggedInUserId = req.user.userID;
+
+        if (!userId) {
+            return res.status(400).json({ message: "User Id is Required" });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: "Invalid User Id" });
+        }
+
+        const sessions = await Session.find({
+            $or: [
+                { teacher: loggedInUserId, learner: userId },
+                { teacher: userId, learner: loggedInUserId },
+            ],
+        })
+            .populate("teacher", "profile.firstName profile.lastName profile.userName profile.profilePic")
+            .populate("learner", "profile.firstName profile.lastName profile.userName profile.profilePic")
+            .sort({ scheduledAt: 1 })
+            .lean();
+
+        return res.status(200).json({
+            message: "Sessions fetched Successfully",
+            data: sessions,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "Error while fetching Sessions",
+            error: error.message,
+        });
+    }
+}

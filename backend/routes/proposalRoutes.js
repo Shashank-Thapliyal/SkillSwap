@@ -1,13 +1,14 @@
 import express from "express"
 import authorize from "../middlewares/authorize.js";
-import  { getProposalBetween, getProposalDetails, getReceivedProposals, getSentProposals } from "../controllers/proposals/getProposals.js";
-import {sendProposal, cancelProposal, respondToProposal } from "../controllers/proposals/proposalActions.js";
+import  { getDashboardData, getProposalBetween, getProposalDetails, getReceivedProposals, getSentProposals } from "../controllers/proposals/getProposals.js";
+import {sendProposal, cancelProposal, respondToProposal} from "../controllers/proposals/proposalActions.js";
 import { updatePaymentStatus } from "../controllers/proposals/updatePayment.js";
 
 const router = express.Router();
 
 router.get("/sent", authorize, getSentProposals);
 router.get("/received", authorize, getReceivedProposals);
+router.get("/dashboard", authorize, getDashboardData);
 
 router.get("/with/:otherUserId", authorize, getProposalBetween);
 

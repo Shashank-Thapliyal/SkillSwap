@@ -66,36 +66,32 @@ export const sendConnectionRequest = async (req, res) => {
 
     if (!existingConnectionRequest) {
       const newConnectionReq = new ConnectionRequest({ senderID, receiverID });
-      
+
       sender.connections.sent.push(newConnectionReq._id);
       receiver.connections.received.push(newConnectionReq._id);
       await newConnectionReq.save();
       await sender.save();
       await receiver.save();
-      
-      return res
-        .status(201)
-        .json({
-          message: `Connection request sent successfully to ${receiverID}`,
-        });
+
+      return res.status(201).json({
+        message: `Connection request sent successfully to ${receiverID}`,
+      });
     } else if (
       existingConnectionRequest &&
       existingConnectionRequest.status === "ignored"
     ) {
       existingConnectionRequest.status = "pending";
-      
+
       sender.connections.sent.push(existingConnectionRequest._id);
       receiver.connections.received.push(existingConnectionRequest._id);
-      
+
       await sender.save();
       await receiver.save();
       await existingConnectionRequest.save();
 
-      return res
-        .status(200)
-        .json({
-          message: `Connection request resent successfully to ${receiverID}`,
-        });
+      return res.status(200).json({
+        message: `Connection request resent successfully to ${receiverID}`,
+      });
     }
   } catch (err) {
     return res.status(500).json({
@@ -110,7 +106,6 @@ export const respondToConnectionReq = async (req, res) => {
   try {
     const requestID = req.params.requestID;
     const { status } = req.body;
-    console.log("requestID", requestID)
     const connectionReq = await ConnectionRequest.findById(requestID);
 
     if (!connectionReq) {
@@ -120,22 +115,21 @@ export const respondToConnectionReq = async (req, res) => {
     const senderID = connectionReq.senderID;
     const receiverID = connectionReq.receiverID;
 
-    const ALLOWED_STATUS = ["accepted", "ignored", "pending"];
+    const ALLOWED_STATUS = ["accepted", "ignored"];
     const isStatusValid = ALLOWED_STATUS.includes(status);
 
     if (!isStatusValid) {
       return res.status(400).json({ message: "Invalid Status type" });
     }
 
-    const sender = await findByID(senderID);
-    const receiver = await findByID(receiverID);
-
     if (receiverID.toString() !== req.user.userID.toString()) {
       return res
         .status(403)
         .json({ message: "Only the receiver can respond to this request" });
-
     }
+
+    const sender = await findByID(senderID);
+    const receiver = await findByID(receiverID);
 
     if (status === "accepted") {
       sender.connections.current.push(receiverID);
@@ -155,12 +149,10 @@ export const respondToConnectionReq = async (req, res) => {
       user2: receiverData,
     });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        message: "error while responding to request",
-        error: err.message,
-      });
+    return res.status(500).json({
+      message: "error while responding to request",
+      error: err.message,
+    });
   }
 };
 
@@ -170,18 +162,24 @@ export const withdrawConnectionRequest = async (req, res) => {
     const requestId = req.params.requestID;
 
     const request = await ConnectionRequest.findById(requestId).populate({
-      path : "receiverID",
-      select : "profile"
+      path: "receiverID",
+      select: "profile",
     });
-    
+
     if (!request) {
       return res.status(404).json({ message: "Request doesn't exist" });
     }
 
+    if (request.senderID.toString() !== senderID.toString()) {
+      return res.status(403).json({
+        message: "Only sender can withdraw request",
+      });
+    }
+    
     const sender = await findByID(senderID);
     const receiverID = request.receiverID._id;
     const receiver = await findByID(receiverID);
-  
+
 
     sender.connections.sent.pull(request._id);
     receiver.connections.received.pull(request._id);
@@ -193,7 +191,6 @@ export const withdrawConnectionRequest = async (req, res) => {
     return res.status(200).json({
       message: `Connection request to ${receiverID} withdrawn successfully`,
     });
-
   } catch (error) {
     return res.status(500).json({
       message: "Error while withdrawing connection request",

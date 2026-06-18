@@ -41,20 +41,13 @@ export const sendMessage = async (req, res) => {
       receiver: receiver,
     });
 
-    await newMessage.save();
+    const savedMessage = await newMessage.save();
 
-    const socketId = users.get(receiver);
+    return res.status(201).json({
+       
+     message: savedMessage 
+  });
 
-    if (socketId) {
-      io.to(socketId).emit("send-message", {
-        content: message,
-        sender: req.user.userID,
-        conversationId,
-        createdAt: new Date(),
-      });
-    }
-
-    return res.status(201).json({ message: "Message Sent Successfully" });
   } catch (error) {
     return res
       .status(500)
@@ -68,25 +61,31 @@ export const getConversations = async (req, res) => {
     const conversations = await Conversation.find({
       participants: userId,
     })
-      .populate([{path : "lastMessage" },{path : "participants", select : "profile"}])
+      .populate([
+        { path: "lastMessage" },
+        { path: "participants", select: "profile" },
+      ])
       .sort({ updatedAt: -1 })
       .lean();
 
-    const sanitizedConversations = conversations.map( (conv) =>({
+    const sanitizedConversations = conversations.map((conv) => ({
       ...conv,
-      participants : conv.participants.filter((user)=> user._id.toString() !== userId),
-    }))
+      participants: conv.participants.filter(
+        (user) => user._id.toString() !== userId
+      ),
+    }));
 
     return res
       .status(200)
-      .json({ message: "Conversations fetched successfully", conversations : sanitizedConversations });
-  } catch (error) {
-    return res
-      .status(500)
       .json({
-        message: "Error while fetching conversations",
-        error: error.message,
+        message: "Conversations fetched successfully",
+        conversations: sanitizedConversations,
       });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error while fetching conversations",
+      error: error.message,
+    });
   }
 };
 
