@@ -1,22 +1,23 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, replace } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import Logo from "../../assets/Logo.png";
 import { PrimaryButton } from "../../components/Buttons.jsx";
 import useSignup from "./useSignup.js";
-
+import { useSelector } from "react-redux";
 
 const SignUp = () => {
-  const {
-    formData: {
-      firstName, middleName, lastName, email, userName, password,
-      confirmPassword, gender, dob, isPasswordVisible
-    },
-    setFormData: {
-      setFirstName, setMiddleName, setLastName, setEmail, setUserName,
-      setPassword, setConfirmPassword, setGender, setDob, setIsPasswordVisible
-    },
-    onSignUp
-  } = useSignup();
+    const {
+        formData: {
+            firstName, middleName, lastName, email, userName, password,
+            confirmPassword, gender, dob, isPasswordVisible
+        },
+        setFormData: {
+            setFirstName, setMiddleName, setLastName, setEmail, setUserName,
+            setPassword, setConfirmPassword, setGender, setDob, setIsPasswordVisible
+        },
+        onSignUp
+    } = useSignup();
+    
 
 
     return (

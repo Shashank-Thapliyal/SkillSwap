@@ -17,6 +17,8 @@ import ReceivedProposals from "../pages/Proposals/ReceivedProposals";
 import ProposalsWrapper from "../pages/Proposals/ProposalsWrapper";
 import Sessions from "../pages/Sessions/Sessions";
 import Settings from "../pages/Settings/Settings";
+import NotFound from "../pages/NotFound/NotFound";
+
 
 const AppRouter = createBrowserRouter([
     {
@@ -95,6 +97,10 @@ const AppRouter = createBrowserRouter([
     }, {
         path: "/login",
         element: <LogIn />
+    },
+       {
+        path: "*",
+        element: <NotFound />
     }
 ]);
 

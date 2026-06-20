@@ -5,4 +5,16 @@ const api = axios.create({
     withCredentials : true
 })
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (!navigator.onLine) {
+      console.log("No internet");
+      return Promise.reject(error);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;

@@ -7,9 +7,12 @@ import { useEffect } from 'react';
 import { setUser } from '../store/userSlice.js';
 import api from './api/api.js';
 import { connectSocket } from '../store/socketSlice.js';
+import useNetworkStatus from "./hooks/useNetworkStatus";
+import NoInternet from './pages/OfflinePage/NoInternet.jsx';
 
 function App() {
   const dispatch = useDispatch();
+  const isOnline = useNetworkStatus();
 
   useEffect(() => {
     (async () => {
@@ -25,6 +28,10 @@ function App() {
     }
     )();
   }, [])
+
+  if (!isOnline) {
+    return <NoInternet />;
+  }
 
   return (
     <>
