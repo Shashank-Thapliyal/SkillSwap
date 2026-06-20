@@ -11,7 +11,7 @@ const LandingPage = () => {
     <div className="min-h-screen bg-[#1E1E2F]">
       <header className="bg-[#1E1E2F] mt-0 border-b border-[#3C3C55] px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-         <Link to="/" > <img src={Logo} alt="SkillSwap Logo" className="h-20 w-auto" /> p</Link>
+         <Link to="/" > <img src={Logo} alt="SkillSwap Logo" className="h-20 w-auto" /> </Link>
           <div className="flex space-x-4">
             <OutlineButton onClick={() => navigate("/login")}>Log In</OutlineButton>
             <PrimaryButton onClick={() => navigate("/signup")}>Sign Up</PrimaryButton>
