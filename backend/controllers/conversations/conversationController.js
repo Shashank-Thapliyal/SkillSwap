@@ -1,4 +1,4 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import Conversation from "../../models/Conversation.model.js";
 import Message from "../../models/Message.model.js";
 import { users } from "../../utils/socket/socketHandler.js";
