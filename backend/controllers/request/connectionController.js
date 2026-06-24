@@ -139,7 +139,7 @@ export const respondToConnectionReq = async (req, res) => {
       await receiver.save();
     }
 
-    await deleteConnectionRequest(requestID, res);
+    await deleteConnectionRequest(requestID);
 
     const senderData = sanitizeData(sender);
     const receiverData = sanitizeData(receiver);

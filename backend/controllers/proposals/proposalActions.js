@@ -30,7 +30,7 @@ export const sendProposal = async (req, res) => {
 
     const isConnected =
       receiver.connections.current.some(
-        (conn) => conn.toString() === senderId
+        (conn) => conn.toString() === senderId,
       ) &&
       sender.connections.current.some((conn) => conn.toString() === receiverId);
 
@@ -50,9 +50,7 @@ export const sendProposal = async (req, res) => {
 
     await newProposalReq.save();
 
-    return res
-      .status(201)
-      .json({ message: "Proposal sent Successfully." });
+    return res.status(201).json({ message: "Proposal sent Successfully." });
   } catch (error) {
     return res
       .status(500)
@@ -66,48 +64,74 @@ export const respondToProposal = async (req, res) => {
     const { reqId } = req.params;
 
     if (!status || !reqId || status === "pending") {
-      return res.status(400).json({ message: "Invalid request" });
+      return res.status(400).json({
+        message: "Invalid request",
+      });
     }
 
     const request = await swapProposal.findById(reqId);
 
-    if (!request || request.receiver.toString() !== req.user.userID) {
-      return res
-        .status(404)
-        .json({ message: "Swap Proposal Request Not Found" });
+    if (
+      !request ||
+      request.receiver.toString() !== req.user.userID.toString()
+    ) {
+      return res.status(404).json({
+        message: "Swap Proposal Request Not Found",
+      });
+    }
+
+    if (request.status !== "pending") {
+      return res.status(400).json({
+        message: `Proposal has already been ${request.status}`,
+      });
     }
 
     if (status === "declined") {
       request.status = "declined";
       await request.save();
-      res.status(200).json({ message: "Status Request Declined Sucessfully" });
-    } else if (status === "accepted") {
+
+      return res.status(200).json({
+        message: "Request Declined Successfully",
+      });
+    }
+
+    if (status === "accepted") {
+      if (timeSlot && !request.proposedTimeSlots.includes(timeSlot)) {
+        return res.status(400).json({
+          message: "Invalid time slot selected",
+        });
+      }
+
       request.status = "accepted";
       await request.save();
+
       const scheduledTime = timeSlot || request.proposedTimeSlots[0];
 
       const newSession = await createSession(
         request.sender,
         request.receiver,
         scheduledTime,
-        "scheduled"
+        "scheduled",
       );
 
-      //notify samne wali party about session bhi
-      res.status(201).json({
-        message: "Request has been Accepted and New session has been Scheduled",
+      return res.status(201).json({
+        message:
+          "Request has been accepted and a new session has been scheduled",
         data: newSession,
       });
     }
 
-    // notify samne wali party i.e Sender about request
+    return res.status(400).json({
+      message: "Invalid status value",
+    });
   } catch (error) {
     return res.status(500).json({
-      message: "error while responding to Proposal",
+      message: "Error while responding to proposal",
       error: error.message,
     });
   }
 };
+
 
 export const cancelProposal = async (req, res) => {
   try {
@@ -118,8 +142,7 @@ export const cancelProposal = async (req, res) => {
 
     if (!request || request.sender.toString() !== req.user.userID)
       return res.status(404).json({ message: "Request not found" });
-    
-    console.log(request.status)
+
     if (request.status && request.status !== "pending")
       return res.status(400).json({ message: "Can't Cancel This Request" });
 
@@ -128,11 +151,9 @@ export const cancelProposal = async (req, res) => {
 
     return res.status(200).json({ message: "request cancelled successfully" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message: "Error while cancelling the Request",
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: "Error while cancelling the Request",
+      error: error.message,
+    });
   }
 };
