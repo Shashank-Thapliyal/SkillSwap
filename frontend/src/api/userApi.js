@@ -106,7 +106,7 @@ export const getDashboardData = async () => {
   }
 }
 
-export const logout = async () =>{
+export const logoutUser = async () =>{
   try {
     const response = await api.post("/auth/logout");
     return response;

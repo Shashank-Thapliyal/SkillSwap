@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect } from 'react'
 import Logo from "../assets/Logo.png";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Mail, Bell, Search, User, Settings, LogOut } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { logout } from '../api/userApi';
+import { logoutUser } from '../api/userApi';
+import { logout } from '../../store/userSlice';
+import { disconnectSocket } from '../../store/socketSlice';
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const currentPage = location.pathname;
   const [notifications, setNotifications] = useState(1);
@@ -51,15 +54,20 @@ const Navbar = () => {
 
   const handleSignOut = async ()=>{
     try{
-      const ok = await logout();
-      if(ok){
+      const response = await logoutUser();
+      if(response.status === 200){
         setOpen(false);
+        
+        dispatch(logout());
+        dispatch(disconnectSocket());
+        localStorage.setItem("logout", Date.now());
+        localStorage.removeItem("logout");
+        
+        toast("Logged Out Successfully!")
         navigate('/login');
-      }else{
-        throw new Error("Sign Out Failed");
       }
     }catch(e){
-      toast.error("Something Went Wrong!")
+      toast.error("Sign Out Failed");
     }
   }
   

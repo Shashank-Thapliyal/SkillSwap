@@ -2,10 +2,13 @@ import React from 'react'
 import Logo from "../assets/Logo.png";
 import { OutlineButton, PrimaryButton, SecondaryButton } from "../components/Buttons.jsx"
 import Footer from '../components/Footer.jsx';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const user = useSelector(state => state.user);
+  if(user) return <Navigate to={"/dashboard"} replace />
 
   return (
     <div className="min-h-screen bg-[#1E1E2F]">

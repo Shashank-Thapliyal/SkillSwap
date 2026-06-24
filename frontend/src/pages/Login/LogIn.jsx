@@ -26,15 +26,18 @@ const LogIn = () => {
 
       const res = await loginUser(userData);
       if (res?.status === 200) {
-        toast.success("Logged In Successfully");
         (async () => {
           const loggedInUser = await api.get("/auth/me");
-          if (loggedInUser.status === 200)
+          if (loggedInUser.status === 200){
             dispatch(setUser(loggedInUser.data));
             dispatch(connectSocket(loggedInUser.data));
+            localStorage.setItem("login", Date.now());
+            localStorage.removeItem("login");
+            toast.success("Logged In Successfully");
+            navigate("/dashboard");
+          }
         }
         )();
-        navigate("/dashboard");
       }
     } catch (error) {
       toast.error(error.response.data.message)
