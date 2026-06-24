@@ -1,14 +1,15 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  discoverTab: 'skills',
+  discoverTab: "skills",
   selectedSkillToLearn: null,
-  conversationTab : "chat",
+  conversationTab: "chat",
   isConnectionModalOpen: false,
+  authLoading: true,
 };
 
 const uiSlice = createSlice({
-  name: 'ui',
+  name: "ui",
   initialState,
   reducers: {
     setDiscoverTab: (state, action) => {
@@ -18,20 +19,31 @@ const uiSlice = createSlice({
       state.selectedSkillToLearn = action.payload;
     },
     resetDiscoverUI: (state, action) => {
-      state.discoverTab = 'skills';
+      state.discoverTab = "skills";
       state.selectedSkillToLearn = null;
     },
-    showConnectionModal : (state, action) => {
-       state.isConnectionModalOpen = action.payload;
+    showConnectionModal: (state, action) => {
+      state.isConnectionModalOpen = action.payload;
     },
-    setConversationTab : (state, action) => {
-      state.conversationTab = action.payload
+    setConversationTab: (state, action) => {
+      state.conversationTab = action.payload;
     },
-    resetConversationTab : (state, action)=>{
-      state.conversationTab = 'chat'
-    }
+    resetConversationTab: (state, action) => {
+      state.conversationTab = "chat";
+    },
+    setAuthLoading(state, action) {
+      state.authLoading = action.payload;
+    },
   },
 });
 
-export const { setDiscoverTab, setSelectedSkillToLearn, resetDiscoverUI, showConnectionModal,setConversationTab , resetConversationTab } = uiSlice.actions;
+export const {
+  setDiscoverTab,
+  setSelectedSkillToLearn,
+  resetDiscoverUI,
+  showConnectionModal,
+  setConversationTab,
+  resetConversationTab,
+  setAuthLoading
+} = uiSlice.actions;
 export default uiSlice.reducer;

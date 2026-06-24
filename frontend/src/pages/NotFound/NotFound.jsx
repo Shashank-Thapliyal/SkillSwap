@@ -19,9 +19,8 @@ export default function NotFound() {
                     The page you're looking for doesn't exist or may have been moved.
                 </p>
 
-                <PrimaryButton className='border-e-black border-2'
-                    onClick={() => navigate("/")}
-                    className="mt-8"
+                <PrimaryButton className='border-e-black border-2 mt-8'
+                    onClick={() => navigate("/dashboard")}
                 >
                     Return Home
                 </PrimaryButton>
