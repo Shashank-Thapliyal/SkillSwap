@@ -4,7 +4,6 @@ export const socketHandler = (io) => {
   io.on("connection", (socket) => {
     socket.on("add-user", (userId) => {
       users.set(userId, socket.id);
-      console.log(users);
       socket.broadcast.emit("online", userId);
       socket.emit("connected");
     });
