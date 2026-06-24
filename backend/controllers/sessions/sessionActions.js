@@ -27,9 +27,9 @@ export const createNewSession = async (req, res) => {
     const newSession = await createSession(
       learner,
       teacher,
-      callLink,
       scheduledAt,
-      status
+      status,
+      callLink
     );
 
     return res
