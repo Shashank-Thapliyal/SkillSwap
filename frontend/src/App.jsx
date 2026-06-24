@@ -4,11 +4,12 @@ import { ToastContainer, Bounce } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
-import { setUser } from '../store/userSlice.js';
+import { logout, setUser } from '../store/userSlice.js';
 import api from './api/api.js';
 import { connectSocket } from '../store/socketSlice.js';
 import useNetworkStatus from "./hooks/useNetworkStatus";
 import NoInternet from './pages/OfflinePage/NoInternet.jsx';
+import { setAuthLoading } from '../store/uiSlice.js';
 
 function App() {
   const dispatch = useDispatch();
@@ -23,11 +24,31 @@ function App() {
           dispatch(connectSocket(loggedInUser.data))
         }
       } catch (error) {
+        dispatch(logout());
         console.log(error)
+      }finally{
+        dispatch(setAuthLoading(false));
       }
     }
     )();
   }, [])
+
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === "logout") {
+        dispatch(logout());
+        AppRouter.navigate("/");
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+
+
+  }, [dispatch, AppRouter.navigate])
 
   if (!isOnline) {
     return <NoInternet />;
