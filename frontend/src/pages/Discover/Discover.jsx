@@ -222,23 +222,7 @@ const Discover = () => {
                 </div>
               </div>
 
-              <div className="mt-12 bg-[#252538] rounded-lg p-8">
-                <h3 className="text-2xl font-bold text-white mb-6 text-center">Join Our Global Community</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                  <div>
-                    <div className="text-3xl font-bold text-[#00C3FF] mb-2">12,847</div>
-                    <div className="text-[#A0A0B0]">Active Learners</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold text-[#00C3FF] mb-2">4,256</div>
-                    <div className="text-[#A0A0B0]">Expert Teachers</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold text-[#00C3FF] mb-2">850+</div>
-                    <div className="text-[#A0A0B0]">Skills Available</div>
-                  </div>
-                </div>
-              </div>
+             
             </>
           )}
         </div>

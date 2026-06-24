@@ -60,7 +60,6 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const res = await getDashboardData();
-        console.log(res);
         if (res.status === 200) {
           setDashboardData(res.data);
         }
@@ -216,7 +215,7 @@ const Dashboard = () => {
             <div className="bg-[#252538] rounded-lg border border-[#3C3C55] p-6">
               <h3 className="font-semibold text-white mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                <PrimaryButton className="w-full bg-[#00C3FF] text-black py-2 px-4 rounded-lg hover:bg-[#00C3FF]/80 flex items-center justify-center transition-colors">
+                <PrimaryButton className="w-full bg-[#00C3FF] text-black py-2 px-4 rounded-lg hover:bg-[#00C3FF]/80 flex items-center justify-center transition-colors" onClick={e => {e.preventDefault(); navigate("/discover")}}>
                   <Users className="w-5 h-5 mr-2" />
                   Find Learning Partners
                 </PrimaryButton>

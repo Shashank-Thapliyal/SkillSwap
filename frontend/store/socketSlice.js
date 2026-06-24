@@ -18,7 +18,7 @@ export const connectSocket = createAsyncThunk('socket/connect', async (user, { r
     socket = null;
   }
 
-  socket = io("http://localhost:5000", {
+  socket = io(import.meta.env.VITE_SOCKET_URL, {
     withCredentials: true,
   });
 

@@ -11,8 +11,8 @@ import { connectSocket } from "../../../store/socketSlice.js";
 
 const LogIn = () => {
   const [userDetails, setUserDetails] = useState({
-    email: "prashant@gmail.com",
-    password: "Prashant@123"
+    email: "",
+    password: ""
   });
 
   const [disableSubmit, setDisableSubmit] = useState(true);

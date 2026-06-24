@@ -80,16 +80,6 @@ const Navbar = () => {
             <img src={Logo} alt="SkillSwap Logo" className="h-16 w-auto" />
           </Link>
 
-          {currentPage === '/dashboard' && (
-            <div className="relative left">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-white" />
-              <input
-                type="text"
-                placeholder="Search skills or users..."
-                className="pl-10 text-white pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent w-64"
-              />
-            </div>
-          )}
         </div>
 
         <div className="flex items-center space-x-4">

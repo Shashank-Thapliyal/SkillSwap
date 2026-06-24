@@ -3,12 +3,15 @@ import { PrimaryButton, SecondaryButton } from "./Buttons";
 import { toast } from "react-toastify";
 import { sendConnectionRequest } from "../api/requestApi";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../store/userSlice";
+import api from "../api/api";
 
 const UserCard = ({ user }) => {
   const [requestSent, setRequestSent] = useState(false);
-  console.log("render : " , user)
   const navigate = useNavigate();
-  
+  const dispatch = useDispatch();
+
   const getAvatarUrl = (user) => {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
       `${user?.profile?.firstName || ''} ${user?.profile?.lastName || ''}`
@@ -24,8 +27,12 @@ const UserCard = ({ user }) => {
       const response = await sendConnectionRequest(user._id);
       console.log(response);
       if(response.status === 201){
-        toast.success("Request sent successfully.");
+        const loggedInUser = await api.get("/auth/me");
+        if(loggedInUser.status === 200){
+          dispatch(setUser(loggedInUser.data));
+        }
         setRequestSent(true);
+        toast.success("Request sent successfully.");
       }
     } catch (error) {
       console.log(error);
@@ -60,11 +67,7 @@ const UserCard = ({ user }) => {
           </div>
         )}
 
-        {/* Status indicator */}
-        <div className="absolute top-4 left-4 flex items-center space-x-2">
-          <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
-          <span className="text-white text-xs font-medium bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">Online</span>
-        </div>
+
       </div>
 
       <div className="p-6 relative">
@@ -78,16 +81,6 @@ const UserCard = ({ user }) => {
           <p className="text-[#A0A0B0] text-sm font-medium flex items-center">
             <span className="text-[#00C3FF]">@</span>{user?.profile?.userName || 'username'}
           </p>
-        </div>
-
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 px-4 py-2 rounded-full border border-yellow-500/30">
-            <span className="text-yellow-400 text-base">⭐</span>
-            <span className="text-white text-sm font-bold">4.5</span>
-          </div>
-          <div className="text-[#A0A0B0] text-sm bg-[#1E1E2F] px-3 py-2 rounded-full border border-[#3C3C55]">
-            <span className="font-bold text-[#00C3FF]">50+</span> sessions
-          </div>
         </div>
 
         <div className="mb-6">
