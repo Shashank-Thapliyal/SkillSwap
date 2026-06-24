@@ -126,7 +126,7 @@ const Chat = () => {
       _id: conv.participants[0]._id,
     }))
     const allUsers = [...filterConversations, ...connections];
-    const chat = allUsers.find(user => user._id === userId);
+    const chat = allUsers.find(user => user._id.toString() === userId);
 
     if (chat) {
       setSelectedChat(chat);

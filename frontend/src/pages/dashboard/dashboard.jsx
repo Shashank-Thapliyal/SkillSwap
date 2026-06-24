@@ -57,10 +57,6 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    console.log("dashboardData", dashboardData);
-  }, [dashboardData]);
-
-  useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         const res = await getDashboardData();
@@ -93,8 +89,6 @@ const Dashboard = () => {
   if (loading) {
     return <Loader />;
   }
-
-  console.log(loggedInUser?.skills?.canTeach)
 
   return (
     <div className="min-h-screen bg-[#1E1E2F]">
@@ -231,7 +225,7 @@ const Dashboard = () => {
                   View Calendar
                 </button>
                 <button className="w-full border border-[#3C3C55] text-[#A0A0B0] py-2 px-4 rounded-lg hover:bg-[#3C3C55]/30 flex items-center justify-center transition-colors" 
-                onClick={(e)=>{e.preventDefault(); navigate("/send-proposal")}}
+                onClick={(e)=>{e.preventDefault(); navigate("/conversations")}}
                 >
                   <Send className="w-5 h-5 mr-2" />
                   Send a proposal
