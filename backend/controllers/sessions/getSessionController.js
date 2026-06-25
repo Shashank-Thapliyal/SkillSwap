@@ -79,3 +79,75 @@ export const getSessionsWith = async (req, res) => {
         });
     }
 }
+
+export const getMissedSessions = async (req, res) => {
+  try {
+    const missedSessions = await Session.find({
+      scheduledAt: { $lt: new Date() },
+      status: "scheduled",
+      $or: [
+        { teacher: req.user.userID },
+        { learner: req.user.userID },
+      ],
+    })
+      .sort({ scheduledAt: -1 })
+      .lean();
+
+    return res.status(200).json({
+      message: "Missed Sessions fetched successfully",
+      data: missedSessions,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error while fetching missed sessions",
+      error: error.message,
+    });
+  }
+};
+
+export const getAllSessions = async (req, res) => {
+  try {
+    const sessions = await Session.find({
+      $or: [
+        { teacher: req.user.userID },
+        { learner: req.user.userID },
+      ],
+    })
+      .sort({ scheduledAt: -1 })
+      .lean();
+
+    return res.status(200).json({
+      message: "Sessions fetched successfully",
+      data: sessions,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error while fetching sessions",
+      error: error.message,
+    });
+  }
+};
+
+export const getCancelledSessions = async (req, res) => {
+  try {
+    const cancelledSessions = await Session.find({
+      status: "cancelled",
+      $or: [
+        { teacher: req.user.userID },
+        { learner: req.user.userID },
+      ],
+    })
+      .sort({ scheduledAt: -1 })
+      .lean();
+
+    return res.status(200).json({
+      message: "Cancelled Sessions fetched successfully",
+      data: cancelledSessions,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error while fetching cancelled sessions",
+      error: error.message,
+    });
+  }
+};

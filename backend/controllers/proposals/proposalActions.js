@@ -97,9 +97,15 @@ export const respondToProposal = async (req, res) => {
 
     if (status === "accepted") {
       if (timeSlot && !request.proposedTimeSlots.includes(timeSlot)) {
-        return res.status(400).json({
-          message: "Invalid time slot selected",
-        });
+        const incomingTime = new Date(timeSlot).getTime();
+        const isValidSlot = request?.proposedTimeSlots?.some(
+          (slot) => new Date(slot).getTime() === incomingTime,
+        );
+        
+        if (!isValidSlot)
+          return res.status(400).json({
+            message: "Invalid time slot selected",
+          });
       }
 
       request.status = "accepted";
@@ -131,7 +137,6 @@ export const respondToProposal = async (req, res) => {
     });
   }
 };
-
 
 export const cancelProposal = async (req, res) => {
   try {
