@@ -27,7 +27,6 @@ const SentRequests = () => {
     setSentRequests( sentRequests.filter( req => req.userId !== userId) )
     setLoading(false);
   }
-  console.log("render sent rq")
   if (loading) return <Loader />;
 
   return (

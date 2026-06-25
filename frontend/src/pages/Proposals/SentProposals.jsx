@@ -19,7 +19,6 @@ const SentProposals = () => {
     try {
       setLoading(true);
       const response = await getSentProposals(loggedInUser?._id);
-      console.log(response.data.proposals);
       if (response.status === 200) {
         const proposalsData = Array.isArray(response.data.proposals)
           ? response.data.proposals

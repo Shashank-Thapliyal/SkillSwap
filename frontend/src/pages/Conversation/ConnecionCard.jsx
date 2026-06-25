@@ -1,7 +1,6 @@
 import React from 'react';
 
 const ConnectionCard = ({ connection, onSelect }) => {
-    // console.log(connection)
   return (
     <div
       onClick={() => onSelect(connection)}

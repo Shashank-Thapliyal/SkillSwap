@@ -1,15 +1,31 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { formatTime } from "../../utils/dateFormatter.js";
+import { cancelSelectedSession } from "../../api/sessionApi";
+import { toast } from "react-toastify";
+import { setUser } from "../../../store/userSlice";
 
 const SessionItem = ({ session, onSessionUpdate }) => {
+
     const loggedInUser = useSelector((state) => state.user);
     const navigate = useNavigate();
 
     const isLearner = session.learner?._id === loggedInUser?._id;
     const role = isLearner ? "learner" : "teacher";
-    const formattedTime = formatTime(session?.scheduledAt);
+
+    const sessionDateObj = new Date(session?.scheduledAt);
+    const displayDate = sessionDateObj.toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+
+    const displayTime = sessionDateObj.toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    const formattedDateTime = session?.scheduledAt ? `${displayDate} at ${displayTime}` : "Time not set";
 
     const now = new Date();
     const sessionTime = new Date(session.scheduledAt);
@@ -48,17 +64,16 @@ const SessionItem = ({ session, onSessionUpdate }) => {
         cancelled: "#ef4444",
     }[session.status] || "#6b7280";
 
-    const handleReschedule = async () => {
-        // open your reschedule modal/flow and call:
-        // await axios.patch(`/api/sessions/reschedule/${session._id}`, { scheduledAt: newTime });
-        // then call onSessionUpdate() to refresh the list
-    };
-
     const handleCancel = async () => {
         try {
-            await axios.patch(`/api/sessions/cancel/${session._id}`);
-            onSessionUpdate?.();
+            const res = await cancelSelectedSession(session?._id);
+            if(res.status === 200){
+                toast.success("Session Cancelled Successfully");
+
+                onSessionUpdate?.(session?._id);
+            }
         } catch (err) {
+            toast.error("Failed to cancel session");
             console.error("Failed to cancel session", err);
         }
     };
@@ -87,7 +102,8 @@ const SessionItem = ({ session, onSessionUpdate }) => {
                             {role === "learner" ? "Learning Session" : "Teaching Session"}
                         </p>
                         <p className="text-[#A0A0B0] text-xs mt-0.5">
-                            📅 {formattedTime || "Time not set"}
+                            {/* Updated to use the new formatted string */}
+                            📅 {formattedDateTime}
                         </p>
                     </div>
                 </div>
@@ -134,12 +150,7 @@ const SessionItem = ({ session, onSessionUpdate }) => {
                             >
                                 Cancel
                             </button>
-                            <button
-                                onClick={handleReschedule}
-                                className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#A0A0B0] border border-[#3C3C55] hover:border-[#A0A0B0]/50 hover:text-white transition-colors"
-                            >
-                                Reschedule
-                            </button>
+                           
                         </div>
                     </div>
                 )}
@@ -153,17 +164,6 @@ const SessionItem = ({ session, onSessionUpdate }) => {
                     </div>
                 )}
 
-                {/* Completed */}
-                {session.status === "completed" && (
-                    <div className="flex justify-end">
-                        <button
-                            onClick={handleViewDetails}
-                            className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#A0A0B0] border border-[#3C3C55] hover:border-[#00C3FF]/40 hover:text-[#00C3FF] transition-colors"
-                        >
-                            View Details
-                        </button>
-                    </div>
-                )}
 
                 {/* Cancelled */}
                 {session.status === "cancelled" && (

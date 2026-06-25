@@ -10,8 +10,6 @@ const EditProfile = () => {
   const [isLoading, setIsloading] = useState(true);
 
   useEffect(() => {
-
-    console.log("happened")
     if(loggedInUser?.profile){
       setIsloading(false);
     }

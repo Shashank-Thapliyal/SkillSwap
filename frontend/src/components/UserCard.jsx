@@ -25,7 +25,6 @@ const UserCard = ({ user }) => {
       }
 
       const response = await sendConnectionRequest(user._id);
-      console.log(response);
       if(response.status === 201){
         const loggedInUser = await api.get("/auth/me");
         if(loggedInUser.status === 200){
@@ -35,7 +34,6 @@ const UserCard = ({ user }) => {
         toast.success("Request sent successfully.");
       }
     } catch (error) {
-      console.log(error);
       toast.error("Failed to send request");
     }
 

@@ -14,7 +14,6 @@ const BlockedUsers = () => {
     const getBlockedUsersData = async () =>{
         const response = await getBlockedUsers();
         if(response.status === 200){
-            console.log(response.data)
             setBlockedUsers(response.data.blocked)
             setLoading(false);
         }

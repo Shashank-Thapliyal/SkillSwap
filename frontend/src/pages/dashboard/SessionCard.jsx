@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 
 const SessionCard = ({ session }) => (
+    
     <div className="bg-[#252538] p-4 rounded-lg border border-[#3C3C55] hover:shadow-md transition-shadow hover:border-[#00C3FF]/50">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-3">

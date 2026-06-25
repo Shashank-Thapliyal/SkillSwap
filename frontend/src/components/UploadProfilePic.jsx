@@ -21,7 +21,6 @@ const ProfilePictureUpload = ({ userPic }) => {
     formData.append("profilePic", file);
 
     setIsUploading(true);
-    console.log("changing the pic")
     const res = await updateProfilePicture(formData, setUploadProgress);
 
     if (res?.data?.url) {

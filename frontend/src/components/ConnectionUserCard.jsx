@@ -12,9 +12,6 @@ const ConnectionUserCard = ({ user, confirmRemove, confirmBlock }) => {
   const [modalType, setModalType] = useState(null);
   const dropdownRef = useRef(null);
   const modalRef = useRef(null);
-  console.log(
-    "user: " ,user
-  )
 
   const navigate = useNavigate()
 
@@ -31,7 +28,6 @@ const ConnectionUserCard = ({ user, confirmRemove, confirmBlock }) => {
   };
 
   const handleConfirmBlock = ()=>{
-    console.log("confirm remove", user._id)
     confirmBlock(user._id);
     setShowConfirmModal(false);
     setShowDropdown(false);
@@ -66,7 +62,6 @@ const ConnectionUserCard = ({ user, confirmRemove, confirmBlock }) => {
     }
   }, [showConfirmModal]);
 
-  console.log("skillsL :", user.skills.canTeach)
   return (
     <>
       <div className="relative bg-[#1E1E2F] p-6 rounded-lg border border-[#3C3C55] flex justify-between items-start">

@@ -53,7 +53,6 @@ const Chat = () => {
         setConversations(response.data.conversations);
       }
     } catch (error) {
-      console.log(error);
       toast.error("Error fetching conversations");
     } finally {
       setChatLoading(false);
@@ -69,7 +68,6 @@ const Chat = () => {
         setProposals(response.data.proposals);
       }
     } catch (error) {
-      console.log(error);
       toast.error("Error Fetching Proposals")
     } finally {
       setProposalsLoading(false);
@@ -87,7 +85,6 @@ const Chat = () => {
       }
 
     } catch (error) {
-      console.log(error);
       toast.error("Error fetching messages");
     } finally {
       setChatLoading(false);
@@ -99,13 +96,10 @@ const Chat = () => {
       if (!selectedChat) return;
       const user = selectedChat?._id ? selectedChat?._id : userId;
       const response = await getSessionsWithReceiver(user);
-      console.log(response)
       if(response.status === 200) {
-        console.log(response.data.data)
         setSessions(response.data.data);
       }
     }catch( error){
-      console.log(error);
       toast.error("Error fetching sessions");
     }
   }
@@ -232,7 +226,6 @@ const Chat = () => {
 
 
   const handleChatSelect = (chat) => {
-    console.log("Selected Chat:", chat);
     setSelectedChat(chat);
     dispatch(setConversationTab("chat"));
     navigate(`/conversations/${chat._id}/chat`);

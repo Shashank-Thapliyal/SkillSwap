@@ -18,7 +18,7 @@ const ProposalsTab = ({ proposals, userId, currentUserId, isLoading, onProposalU
 
   const navigate = useNavigate();
   const [proposalToAccept, setProposalToAccept] = useState(null);
-  
+
   const sortedProposals = Array.isArray(proposals)
     ? [...proposals].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     : [];
@@ -42,11 +42,16 @@ const ProposalsTab = ({ proposals, userId, currentUserId, isLoading, onProposalU
     }
   };
 
-  const handleAcceptProposal = async () => {
+  const handleAcceptProposal = async (selectedSlot) => {
     if (!proposalToAccept) return;
 
+    if (!selectedSlot) {
+      toast.error("Invalid Time Slot");
+      return;
+    }
+
     try {
-      const selectedSlot = proposalToAccept.proposedTimeSlots?.[0];
+      console.log(selectedSlot)
       const response = await acceptProposalRequest(proposalToAccept._id, selectedSlot);
 
       if (response.status === 201) {
@@ -112,11 +117,8 @@ const ProposalsTab = ({ proposals, userId, currentUserId, isLoading, onProposalU
         <ConfirmationModal
           isOpen={Boolean(proposalToAccept)}
           title="Accept Proposal"
-          message={
-            acceptedSlot
-              ? `Accept this proposal for ${formatSlot(acceptedSlot)}? A session will be created for this date and time.`
-              : "Accept this proposal? A session will be created."
-          }
+          message="Please select an agreed upon time for this peer-to-peer session."
+          slots={proposalToAccept?.proposedTimeSlots}
           onConfirm={handleAcceptProposal}
           onCancel={() => setProposalToAccept(null)}
         />

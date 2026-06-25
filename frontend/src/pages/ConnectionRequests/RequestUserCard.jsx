@@ -18,14 +18,12 @@ const RequestUserCard = ({ user, primaryAction, secondaryAction, onBlocked }) =>
     
   const confirmBlock = async (userId) => {
     try {
-      console.log("confirm block me user id : ", userId);
       const response = await blockUser(userId);
       if(response.status === 200) {
         toast.success("User blocked successfully");
         onBlocked?.(user.userId);
       }
     } catch (error) {
-      console.log(error);
       toast.error("Error blocking user");
     }finally{
       setShowDropdown(false);

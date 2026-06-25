@@ -30,7 +30,7 @@ import ProposalCard from '../../components/ProposalCard';
 import { toast } from "react-toastify";
 import UserCard from './UserCard';
 import StatCard from './StatCard';
-import SessionCard from './SessionCard';
+import SessionCard from '../Conversation/SessionItem.jsx';
 import { useNavigate } from 'react-router-dom';
 import { withdrawConnectionRequest, acceptConnectionRequest, rejectConnectionRequest } from "../../api/requestApi.js"
 import { setUser } from '../../../store/userSlice.js';
@@ -56,21 +56,32 @@ const Dashboard = () => {
     stats: {},
   });
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const res = await getDashboardData();
-        if (res.status === 200) {
-          setDashboardData(res.data);
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to fetch dashboard data");
-      }
-    };
+  const fetchDashboardData = async () => {
+    try {
+      const res = await getDashboardData();
 
+      if (res.status === 200) {
+        setDashboardData(res.data);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch dashboard data");
+    }
+  };
+
+  useEffect(() => {
     fetchDashboardData();
   }, []);
+
+
+  const handleSessionCancelled = (sessionId) => {
+    setDashboardData(prev => ({
+      ...prev,
+      upcomingSessions: prev.upcomingSessions.filter(
+        session => session._id !== sessionId
+      )
+    }));
+  };
 
   const handleViewSessions = (e) => {
     e.preventDefault();
@@ -119,6 +130,7 @@ const Dashboard = () => {
                     <SessionCard
                       key={session._id}
                       session={session}
+                      onSessionUpdate={handleSessionCancelled}
                     />
                   ))
                 ) : (
@@ -205,7 +217,7 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-              <button className="w-full mt-4 border border-[#3C3C55] text-[#A0A0B0] py-2 px-4 rounded-lg hover:bg-[#3C3C55]/30 transition-colors" onClick={(e)=>{e.preventDefault(); navigate("/profile")}}>
+              <button className="w-full mt-4 border border-[#3C3C55] text-[#A0A0B0] py-2 px-4 rounded-lg hover:bg-[#3C3C55]/30 transition-colors" onClick={(e) => { e.preventDefault(); navigate("/profile") }}>
                 Update Skills
               </button>
             </div>
@@ -215,7 +227,7 @@ const Dashboard = () => {
             <div className="bg-[#252538] rounded-lg border border-[#3C3C55] p-6">
               <h3 className="font-semibold text-white mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                <PrimaryButton className="w-full bg-[#00C3FF] text-black py-2 px-4 rounded-lg hover:bg-[#00C3FF]/80 flex items-center justify-center transition-colors" onClick={e => {e.preventDefault(); navigate("/discover")}}>
+                <PrimaryButton className="w-full bg-[#00C3FF] text-black py-2 px-4 rounded-lg hover:bg-[#00C3FF]/80 flex items-center justify-center transition-colors" onClick={e => { e.preventDefault(); navigate("/discover") }}>
                   <Users className="w-5 h-5 mr-2" />
                   Find Learning Partners
                 </PrimaryButton>
@@ -223,8 +235,8 @@ const Dashboard = () => {
                   <Calendar className="w-5 h-5 mr-2" />
                   View Calendar
                 </button>
-                <button className="w-full border border-[#3C3C55] text-[#A0A0B0] py-2 px-4 rounded-lg hover:bg-[#3C3C55]/30 flex items-center justify-center transition-colors" 
-                onClick={(e)=>{e.preventDefault(); navigate("/conversations")}}
+                <button className="w-full border border-[#3C3C55] text-[#A0A0B0] py-2 px-4 rounded-lg hover:bg-[#3C3C55]/30 flex items-center justify-center transition-colors"
+                  onClick={(e) => { e.preventDefault(); navigate("/conversations") }}
                 >
                   <Send className="w-5 h-5 mr-2" />
                   Send a proposal
@@ -299,7 +311,7 @@ const Dashboard = () => {
                 </p>
               </div>
             </div>
-           
+
           </div>
         </div>
       </div>

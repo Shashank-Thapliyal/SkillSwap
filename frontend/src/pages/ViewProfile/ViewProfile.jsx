@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom"
 import { useSelector } from "react-redux";
 import { getUserData } from "../../api/userApi";
 import Loader from "../../components/Loader";
+import { toast } from "react-toastify";
 
 const ViewProfile = () => {
 
@@ -31,7 +32,7 @@ const ViewProfile = () => {
           const user = await getUserData(userId);
           setUserDetails(user.data?.data);
         } catch (error) {
-          console.log(error);
+          toast.error("Something went wrong");
         }
       }
       setIsloading(false);
@@ -39,10 +40,8 @@ const ViewProfile = () => {
   
     fetchUser();
   }, [userId, loggedInUser]);
-  console.log("userDetials:", userDetails);
 
   if(isLoading){
-    console.log("loading")
     return  <Loader />
 }
   return (

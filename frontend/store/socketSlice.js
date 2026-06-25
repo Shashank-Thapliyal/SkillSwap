@@ -43,7 +43,6 @@ export const disconnectSocket = createAsyncThunk('socket/disconnect', async () =
   if (socket) {
     socket.disconnect();
     socket = null;
-    console.log("Socket disconnected");
   }
   return true;
 });

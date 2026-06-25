@@ -147,9 +147,7 @@ const ProfileForm = ({ loggedInUser }) => {
       canTeach,
       wantToLearn,
     };
-    console.log("Saved Profile:", profileData);
     const response = await updateProfile(profileData);
-    console.log(response.data.user);
     if (response.status === 200) {
       toast.success("Profile Updated Successfully")
       dispatch(setUser(response.data?.user));

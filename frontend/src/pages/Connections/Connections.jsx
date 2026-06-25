@@ -25,7 +25,6 @@ const Connections = () => {
     const confirmRemove = async (userId) => {
         try {
             setLoading(true);
-            console.log("confirm remove", userId)
             const response = await removeConnection(userId);
             if(response.status === 200){
                 await getUser();
@@ -34,7 +33,6 @@ const Connections = () => {
 
             }
         } catch (error) {
-            console.log(error);
             toast.error("Error Removing Connection")
         }
       };
@@ -49,7 +47,6 @@ const Connections = () => {
             setLoading(false);
           }
         } catch (error) {
-            console.log(error);
           toast.error("Error blocking user");
         }
       };
@@ -57,7 +54,6 @@ const Connections = () => {
       if(loading)
         return <Loader />
 
-console.log(connections?.map( con => console.log(con)))
     return (
         <div className="bg-[#252538] w-[70%] mx-auto my-4 rounded-lg border border-[#3C3C55] p-6">
             <div className="flex items-center justify-between my-2 flex-wrap gap-4">

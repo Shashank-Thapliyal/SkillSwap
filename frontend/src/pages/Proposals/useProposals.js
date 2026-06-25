@@ -15,9 +15,7 @@ const useProposals = ({ receiverId } = {}) => {
     try {
       setLoadingProposals(true);
       const response = await getSentProposals(receiverId);
-      console.log(Array.isArray(response.data))
-      console.log(typeof response.data);
-      
+ 
       if (response.status === 200) {
         const sorted = [...response.data.proposals].sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)

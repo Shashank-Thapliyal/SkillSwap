@@ -13,7 +13,6 @@ const useProposalActions = ({ onSuccess } = {}) => {
         return true;
       }
     } catch (error) {
-      console.log(error);
       toast.error("Failed to cancel proposal");
       return false;
     }

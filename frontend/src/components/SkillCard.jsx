@@ -31,7 +31,6 @@ const SkillCard = ({ skill }) => {
         <SecondaryButton
           className="flex-1 text-sm py-2"
           onClick={() => {
-            console.log("hello")
             dispatch(setSelectedSkillToLearn(skill.name))
             dispatch(setDiscoverTab('people'));
           }}

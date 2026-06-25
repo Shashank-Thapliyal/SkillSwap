@@ -39,7 +39,6 @@ const Discover = () => {
         }
 
       } catch (error) {
-        console.log("API Error:", error);
         toast.error("Error fetching data");
       } finally {
         setLoading(false);
@@ -109,7 +108,6 @@ const Discover = () => {
               onClick={() => {
                 dispatch(setSelectedSkillToLearn(null));
                 dispatch(setDiscoverTab('people'));
-                console.log("hello")
               }}
               className={`pb-4 px-2 font-medium transition-colors ${activeTab === 'people'
                 ? 'text-[#00C3FF] border-b-2 border-[#00C3FF]'
